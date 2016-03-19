@@ -4,7 +4,7 @@ var wait = {
   for: function(milliseconds)
   {
     'use strict';
-    return milliseconds < 0 ? Promise.resolve() : new Promise(function(resolve)
+    return milliseconds <= 0 ? Promise.resolve() : new Promise(function(resolve)
     {
         setTimeout(resolve, milliseconds);
     });
@@ -35,7 +35,7 @@ var wait = {
   }
 };
 
-function alarm(milliseconds)
+function alarm(step, options)
 {
   'use strict';
 
@@ -46,10 +46,11 @@ function alarm(milliseconds)
 
   // Constructor
 
-  var _step = milliseconds;
+  var _step = step;
   var _set = new Date().getTime() + _step;
+  var _options = options || {};
 
-  var _promise = {};
+  var _promise = {resolved: false};
   _promise.promise = new Promise(function(resolve, reject)
   {
     _promise.resolve = resolve;
@@ -60,13 +61,21 @@ function alarm(milliseconds)
 
   (function loop()
   {
-    var _old = _set;
     wait.till(_set).then(function()
     {
-      if(_old === _set && _promise)
+      var now = new Date().getTime();
+      if(now >= _set)
       {
-        _promise.resolve();
-        _promise = null;
+        if(_options.sleep_threshold && (now - _set) > _options.sleep_threshold)
+        {
+          self.reset();
+          loop();
+        }
+        else
+        {
+          _promise.resolve();
+          _promise.resolved = true;
+        }
       }
       else
         loop();
@@ -80,24 +89,24 @@ function alarm(milliseconds)
     if(typeof milliseconds === 'undefined')
       milliseconds = _step;
 
-    if(!_promise)
+    if(_promise.resolved)
       throw {code: 1, description: 'Alarm already went off.', url: ''};
 
-    _set = new Date().getTime() + _step;
+    _set = new Date().getTime() + milliseconds;
   };
 
   self.abort = function()
   {
-    if(!_promise)
+    if(_promise.resolved)
       throw {code: 1, description: 'Alarm already went off.', url: ''};
 
     _promise.reject();
-    _promise = null;
+    _promise.resolved = true;
   };
 
   self.then = function(callback)
   {
-    if(!_promise)
+    if(_promise.resolved)
       throw {code: 1, description: 'Alarm already went off.', url: ''};
 
     return _promise.promise.then(callback);
@@ -105,7 +114,7 @@ function alarm(milliseconds)
 
   self.catch = function(callback)
   {
-    if(!_promise)
+    if(_promise.resolved)
       throw {code: 1, description: 'Alarm already went off.', url: ''};
 
     return _promise.promise.catch(callback);
