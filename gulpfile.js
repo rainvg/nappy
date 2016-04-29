@@ -3,7 +3,7 @@
 var gulp  = require('gulp'),
     jshint = require('gulp-jshint'),
     uglify = require('gulp-uglify'),
-    mocha = require('gulp-mocha'),
+    mocha = require('gulp-mocha'), //jshint ignore: line
     rename = require('gulp-rename');
 
 gulp.task('default', ['lint','test', 'minify'], function()

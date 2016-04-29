@@ -6,7 +6,7 @@ var wait = {
     'use strict';
     return milliseconds <= 0 ? Promise.resolve() : new Promise(function(resolve)
     {
-        setTimeout(resolve, milliseconds);
+      setTimeout(resolve, milliseconds);
     });
   },
   till: function(timestamp)
