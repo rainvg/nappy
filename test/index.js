@@ -1,14 +1,20 @@
 'use strict';
 
-var chai = require('chai');
-var sinon = require('sinon');
-var needle = require('needle');
-var sinon_chai = require('sinon-chai');
-var expect = chai.expect;
+// Vendor
 
-chai.use(sinon_chai);
+var vendor = require('./vendor.js');
+var sinon = vendor.sinon;
+var should = vendor.should; // jshint ignore: line
+
+// Mocks
+
+var needle = require('needle');
+
+// Files to be tested
 
 var nappy = require('../src/index.js');
+
+// Tests
 
 describe('wait', function()
 {
@@ -57,10 +63,11 @@ describe('wait', function()
 
 describe('alarm', function()
 {
-  it('constructor must be called with new', function()
+  it('constructor must be called with new', function(done)
   {
     var constructor_exception = {code: 0, description: 'Constructor must be called with new.', url: ''};
-    return expect(nappy.alarm).to.throw(constructor_exception);
+    nappy.alarm.should.throw(constructor_exception);
+    done();
   });
 
   it('should be reset');
