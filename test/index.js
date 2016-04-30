@@ -12,8 +12,6 @@ var nappy = require('../src/index.js');
 
 describe('wait', function()
 {
-
-
   it('should wait for 1 second', function(done)
   {
     this.timeout(1500);
@@ -29,15 +27,25 @@ describe('wait', function()
 
   before(function()
   {
+    var _retries = 0;
     sinon.stub(needle, 'get', function(url, callback)
     {
-      var ip = '2.224.212.173';
-      callback(undefined, {statusCode: 200, body: ip});
+      if(_retries === 5)
+      {
+        var ip = '2.224.212.173';
+        callback(undefined, {statusCode: 200, body: ip});
+      }
+      else
+      {
+        _retries++;
+        callback({error: true}, {statusCode: 404, body: undefined});
+      }
     });
   });
 
   it('should wait for connection', function(done)
   {
+    this.timeout(5500);
     nappy.wait.connection().then(done);
   });
 
