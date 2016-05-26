@@ -21,7 +21,7 @@ describe('wait', function()
   before(function()
   {
     var _retries = 0;
-    sinon.stub(needle, 'get', function(url, callback)
+    sinon.stub(needle, 'get', function(url, options, callback)
     {
       if(_retries === 5)
       {
